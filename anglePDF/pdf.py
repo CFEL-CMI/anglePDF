@@ -29,17 +29,19 @@ class AnglePDF(object):
 
         param filename Specifies the file to work with, can be new if data is to be written.
         """
-        pass
+        # open file
+        self.load(file)
+
+
+    def load(self, file):
+        """Load data from the current file"""
+        seld._data = []
 
 
     def save(self, data):
         """Save the provided data to file"""
-        pass
-
-
-    def load(self, data):
-        """Load data from the current file"""
-        pass
+        self._data = data
+        #flush file
 
 
     def sample(self, n=1000):
