@@ -1,6 +1,6 @@
-# CMI Python-project template licensing conditions
+# CMI anglePDF licensing conditions
 
-The CMI Python-project template is provided by the CFEL-CMI group as is. It is licensed under the
+The CMI anglePDF is provided by the CFEL-CMI group as is. It is licensed under the
 [GPL v3](./LICENSE-GPLv3.md) with the following additional requests to users:
 
 * Its use for scientific work is acknowledged by the appropriate reference in any resulting work,
