@@ -1,9 +1,6 @@
-# CMI Python-project template
+# CMI anglePDF
 
-Template for new CMI Python-software projects.
-
-This includes the basic setup of a Python project with library, scripts, pytest testing, and [sphinx
-documentation](https://cmi-python-project-template.readthedocs.io).
+Repository for an angular-proability-density function exchange format `anglePDF`, pronounced as `angled`.
 
 
 ## Installation
@@ -13,19 +10,22 @@ Standard setuptool installation, run
 python setup.py install
 ```
 or advanced versions using `develop`, `--user`, etc. – see the
-[documentation](https://cmi-python-project-template.readthedocs.io) for more details.
+[documentation](https://anglePDF.readthedocs.io) for more details.
 
 
 ## Documentation
 
+To be done on readthedocs, but provide inline documentation from the beginning.
+
 See this very [sphinx-generated
-documentation](https://cmi-python-project-template.readthedocs.io) for further
+documentation](https://anglePDF.readthedocs.io) for further
 details; it can be produced by running
 ```
 python setup.py build_sphinx
 ```
 
 See also the [license](./LICENSE.md).
+
 
 ## Testing
 
