@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8; fill-column: 120 -*-
 #
-# Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>
+# Copyright (C) 2021 Jochen Küpper <jochen.kuepper@cfel.de>
 #
-# This file is part of CMItemplate
+# This file is part of CMI anglePDF
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 # General Public License as published by the Free Software Foundation, either version 3 of the
@@ -20,9 +20,31 @@
 # see <http://www.gnu.org/licenses/>.
 
 
-class Template(object):
+
+class AnglePDF(object):
     """Define a rudimentary template class to demonstrate documentation and installation"""
 
-    def __init__(self):
-        """Initialize object"""
+    def __init__(self, filename):
+        """Initialize object
+
+        param filename Specifies the file to work with, can be new if data is to be written.
+        """
+        pass
+
+
+    def save(self, data):
+        """Save the provided data to file"""
+        pass
+
+
+    def load(self, data):
+        """Load data from the current file"""
+        pass
+
+
+    def sample(self, n=1000):
+        """Sample the PDF
+
+        param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
+        """
         pass
