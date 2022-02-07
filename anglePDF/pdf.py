@@ -30,12 +30,12 @@ class AnglePDF(object):
         param filename Specifies the file to work with, can be new if data is to be written.
         """
         # open file
-        self.load(file)
+        self.load(filename)
 
 
     def load(self, file):
         """Load data from the current file"""
-        seld._data = []
+        self._data = []
 
 
     def save(self, data):
@@ -49,4 +49,4 @@ class AnglePDF(object):
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-        pass
+

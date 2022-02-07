@@ -9,7 +9,7 @@
 # General Public License as published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# If you use this programm for scientific work, you must correctly reference it; see LICENSE file
+# If you use this program for scientific work, you must correctly reference it; see LICENSE file
 # for details.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
@@ -18,13 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
-
-
+import numpy as np
 
 class ExpSimPDF(object):
-    """Simulate anguar PDF from experimental paramters"""
+    """Simulate angular PDF from experimental parameters"""
 
-    def __init__(self, alignment=1, measurement=2, data=(0.5,)):
+    def __init__(self, alignment=1, measurement=2, data=(0.5,), distfunc = 'fh95'):
         """Initialize object
 
         param alignment Specify the dimensionality of the alignment, i.e., 1D or 3D
@@ -35,11 +34,28 @@ class ExpSimPDF(object):
         param data
 
         """
+        self.alignment = alignment
+        self.measurement = measurement
+        self.distfunc = distfunc
+
         # open file
         self._pdf = []
-        return self._pdf
+
+
+    def func_selection(self):
+        if (self.distfunc == 'fh95'):
+            fh95_sampler(self.measurement)
+        else:
+            print('The defined distribution has not been implemented yet')
 
 
     def pdf(self, file):
         """Load data from the current file"""
-        refturn self._pdf
+        return self._pdf
+
+    def fh95_sampler(self, measurement, sample):
+        if measurement < 1/3 or measurement > 1:
+            raise Exception('The expectation value is not valid ')
+        else:
+            phi = np.random.uniform()
+            
