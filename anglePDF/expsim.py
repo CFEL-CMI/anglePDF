@@ -19,11 +19,12 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
+import dist_funcs
 
 class ExpSimPDF(object):
     """Simulate angular PDF from experimental parameters"""
 
-    def __init__(self, alignment=1, measurement=2, data=(0.5,), distfunc = 'fh95'):
+    def __init__(self, alignment=1, measurement=2, data=(0.5,), distfunc='fh95', sample = 1000):
         """Initialize object
 
         param alignment Specify the dimensionality of the alignment, i.e., 1D or 3D
@@ -37,17 +38,16 @@ class ExpSimPDF(object):
         self.alignment = alignment
         self.measurement = measurement
         self.distfunc = distfunc
+        self.sample = sample
 
         # open file
         self._pdf = []
 
-
-    def func_selection(self):
-        if (self.distfunc == 'fh95'):
-            fh95_sampler(self.measurement)
+    def dist_func_selection(self):
+        if self.distfunc == 'fh95':
+            dist_funcs.FhDist(self.measurement, self.alignment, self.sample)
         else:
             print('The defined distribution has not been implemented yet')
-
 
     def pdf(self, file):
         """Load data from the current file"""
@@ -57,5 +57,13 @@ class ExpSimPDF(object):
         if measurement < 1/3 or measurement > 1:
             raise Exception('The expectation value is not valid ')
         else:
-            phi = np.random.uniform()
-            
+            phi = np.random.uniform(0, 2*np.pi, size=sample)
+            thetas = np.zeros(sample)
+            i = 0
+            while i < sample:
+                proposal = np.random.uniform(-1, 1)
+                v = np.random.rand()
+                if v <= :
+                    thetas[i] = np.arccos(proposal)
+                    i += 1
+
