@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
+import h5py
 
 
 class FHDist(object):
@@ -26,6 +27,8 @@ class FHDist(object):
         self.measurement = measurement
         self.alignment = alignment
         self.sample = sample
+        if measurement< 1/3 or measurement > 1:
+            raise Exception("The expectation value is not valid")
         if alignment == 3:
             self.angle_sampler_3d()
         else:

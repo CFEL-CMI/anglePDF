@@ -53,17 +53,4 @@ class ExpSimPDF(object):
         """Load data from the current file"""
         return self._pdf
 
-    def fh95_sampler(self, measurement, sample):
-        if measurement < 1/3 or measurement > 1:
-            raise Exception('The expectation value is not valid ')
-        else:
-            phi = np.random.uniform(0, 2*np.pi, size=sample)
-            thetas = np.zeros(sample)
-            i = 0
-            while i < sample:
-                proposal = np.random.uniform(-1, 1)
-                v = np.random.rand()
-                if v <= :
-                    thetas[i] = np.arccos(proposal)
-                    i += 1
 
