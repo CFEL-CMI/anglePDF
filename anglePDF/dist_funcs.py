@@ -20,14 +20,21 @@
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
 import h5py
+import pkgutils
 
 
 class FHDist(object):
     def __init__(self, measurement, alignment, sample):
+        """
+
+        """
         self.measurement = measurement
         self.alignment = alignment
         self.sample = sample
-        if measurement< 1/3 or measurement > 1:
+        if measurement < 1/2 or measurement > 1:
+            """
+            The cos^2theta value for alignment value projection onto a 2D plane lier between 1 and 0.5 
+            """
             raise Exception("The expectation value is not valid")
         if alignment == 3:
             self.angle_sampler_3d()
