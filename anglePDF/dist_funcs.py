@@ -20,21 +20,26 @@
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
 import h5py
-import pkgutils
+import pkgutil
 
 
 class FHDist(object):
     def __init__(self, measurement, alignment, sample):
         """
+        Caluculate the theta and phi angle array coressponding to the angular distribution given Friedrich and Herschabch
+        paper DOI :  https://doi.org/10.1103/PhysRevLett.74.4623
 
+        Param: cos2theta_2D value, alignment and number of molecules in sample
+
+        Method : The sigma that is the variance of the Guassian distribution. Sigma can be determined by looking into
+        pre-calculated values using the monte carlo integration. The pre-calculated value ore stored in the data file.
+        The code for the pre-calculation can be looked in the package.
         """
         self.measurement = measurement
         self.alignment = alignment
         self.sample = sample
+        # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
         if measurement < 1/2 or measurement > 1:
-            """
-            The cos^2theta value for alignment value projection onto a 2D plane lier between 1 and 0.5 
-            """
             raise Exception("The expectation value is not valid")
         if alignment == 3:
             self.angle_sampler_3d()
@@ -48,6 +53,13 @@ class FHDist(object):
         pass
 
     def angle_sampler_1d(self, exp_value, n):
+        """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
+
+        param: the experimnetal value of $\cos^2\theta_2D$ and sample size
+        In case of 1D alignment the \phi (azimuthal angle) will hae a unifrom distribution between 0 to 2\pi. The
+        \theta (inclination) that is the angle with respect to the z-axis shall follow a Guassian distribution
+        given by Friedrich and Herschbach
+        """
         phi = np.random.uniform(0, 2*np.pi, n)
         thetas = np.zeros(n)
         i = 0
