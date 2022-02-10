@@ -19,12 +19,14 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
-import dist_funcs
+import pkgutil
+import h5py
+
 
 class ExpSimPDF(object):
     """Simulate angular PDF from experimental parameters"""
 
-    def __init__(self, alignment=1, measurement=2, data=(0.5,), distfunc='fh95', sample = 1000):
+    def __init__(self, alignment=1, measurement=2, data=(0.5,), sample=1000):
         """Initialize object
 
         param alignment Specify the dimensionality of the alignment, i.e., 1D or 3D
@@ -37,20 +39,60 @@ class ExpSimPDF(object):
         """
         self.alignment = alignment
         self.measurement = measurement
-        self.distfunc = distfunc
         self.sample = sample
 
         # open file
         self._pdf = []
-
-    def dist_func_selection(self):
-        if self.distfunc == 'fh95':
-            dist_funcs.FhDist(self.measurement, self.alignment, self.sample)
-        else:
-            print('The defined distribution has not been implemented yet')
 
     def pdf(self, file):
         """Load data from the current file"""
         return self._pdf
 
 
+class FHDist(ExpSimPDF):
+    def __init__(self, alignment=1, measurement=0.5, data=(0.5,), sample=1000):
+        """
+        Calculate the theta and phi angle array corresponding to the angular distribution given Friedrich and
+        Herschbach paper DOI :  https://doi.org/10.1103/PhysRevLett.74.4623
+
+        Param: cos2theta_2D value, alignment and number of molecules in sample
+
+        Method : The sigma that is the variance of the Guassian distribution. Sigma can be determined by looking into
+        pre-calculated values using the monte carlo integration. The pre-calculated value ore stored in the data file.
+        The code for the pre-calculation can be looked in the package.
+        """
+        super().__init__(alignment, measurement, data, sample)
+        # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
+        if self.measurement < 1 / 2 or self.measurement > 1:
+            raise Exception("The expectation value is not valid")
+        self.f = pkgutil.get_data('anglePDF', '/data/cos3d_cos2d_sigma.h5')
+        if self.alignment == 3:
+            self.angle_sampler_3d()
+        else:
+            self.angle_sampler_1d(self.measurement, self.sample)
+
+    @staticmethod
+    def fh_func(cost, sigma):
+        return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
+
+    def angle_sampler_3d(self):
+        return self.f
+        pass
+
+    def angle_sampler_1d(self, sigma, n):
+        """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
+
+        param: the experimental value of $ \cos^2 \theta_2D $ and sample size
+        In case of 1D alignment the \phi (azimuthal angle) will have a uniform distribution between 0 and 2\pi. The
+        \theta (inclination) that is the angle with respect to the z-axis shall follow a Guassian distribution
+        given by Friedrich and Herschbach
+        """
+        phi = np.random.uniform(0, 2 * np.pi, n)
+        thetas = np.zeros(n)
+        i = 0
+        while i < n:
+            proposal = np.random.uniform(-1, 1)
+            v = np.random.rand()
+            if v <= self.fh_func(proposal, sigma):
+                thetas[i] = np.arccos(proposal)
+                i += 1
