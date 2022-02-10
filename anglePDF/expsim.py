@@ -20,6 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
 import h5py
+from scipy import interpolate
 
 
 class ExpSimPDF(object):
@@ -79,7 +80,7 @@ class FHDist(ExpSimPDF):
         return
         pass
 
-    def angle_sampler_1d(self, sigma, n):
+    def angle_sampler_1d(self, exp_value, n):
         """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
 
         param: the experimental value of $ \cos^2 \theta_2D $ and sample size
@@ -88,11 +89,20 @@ class FHDist(ExpSimPDF):
         given by Friedrich and Herschbach
         """
         phi = np.random.uniform(0, 2 * np.pi, n)
-        thetas = np.zeros(n)
+        chi = np.random.uniform(0, 2 * np.pi, n)
+        theta = np.zeros(n)
+        f = h5py.File('data/cos3d_cos2d_sigma.h5', 'r')
+        cos2theta_2d = np.asarray(f['cos2theta_2d'])
+        sigmas = np.asarray(f['sigma'])
+        f.close()
+        sigma_interp = interpolate.interp1d(cos2theta_2d, sigmas)
+        sigma = sigma_interp(exp_value)
         i = 0
         while i < n:
             proposal = np.random.uniform(-1, 1)
             v = np.random.rand()
             if v <= self.fh_func(proposal, sigma):
-                thetas[i] = np.arccos(proposal)
+                theta[i] = np.arccos(proposal)
                 i += 1
+
+        return np.array([phi, theta, chi])

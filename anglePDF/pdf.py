@@ -19,8 +19,10 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 
-#import git
+import git
 import h5py
+import expsim
+
 
 class AnglePDF(object):
     """Define a rudimentary template class to demonstrate documentation and installation"""
@@ -29,32 +31,50 @@ class AnglePDF(object):
         """Initialize object
 
         param filename Specifies the file to work with, can be new if data is to be written.
+        Receive a filename in following format
+        name of angular distribution- exp value - sample size
+        for e.g. fh95-0.85-10000
+        means angle for Friedrich Herschbach angular distribution which has 0.85 experimental value and 10000 molecule
         """
         self.func_name = filename.split('-')[0]
-        self.measurement = filename.split('-')[1]
-        self.sample_size = filename.split('-')[2]
+        self.measurement = float(filename.split('-')[1])
+        self.sample_size = int(filename.split('-')[2])
         try:
             h5py.File(f'pdf_file/{filename}.h5', 'r')
             self.load(filename)
         except:
-            print('Currently no file exits with the given values \nWorking on creating probability density function...')
-            self.sample(self.func_name,self.measurement,self.sample_size)
-
+            print('Sampling...')
+            self.sample(self.func_name, self.measurement, self.sample_size)
 
     def load(self, file):
         """Load data from the current file"""
-        self._data = []
+        f = h5py.File(f'pdf_file/{file}.h5', 'r')
+        print('The angular distribution has the following details:\n')
+        for key in f.attrs.keys():
+            print(f'{key} -> {f.attrs[key]}')
 
-
-    def save(self, data):
+    def save(self, data=None):
         """Save the provided data to file"""
+        # flush file
         self._data = data
-        #flush file
+        fname = h5py.File(f'pdf_file/{self.func_name}-{self.measurement}-{self.sample_size}.h5', 'w')
+        fname.create_dataset(name='phi', data=self._data[0])
+        fname.create_dataset(name='theta', data=self._data[1])
+        fname.create_dataset(name='chi', data=self._data[2])
+        metadata = {'Distribution name': self.func_name,
+                    'Alignment': '1D',
+                    'Expectation_value': self.measurement,
+                    'Commit': git.Repo("anglePDF")}
+        fname.attrs.update(metadata)
+        fname.close()
 
-
-    def sample(self, n=1000):
+    def sample(self, dist_name, exp_value, n=1000):
         """Sample the PDF
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-
+        if dist_name == 'fh95':
+            sim_data = expsim.FHDist(measurement=exp_value, sample=n)
+            self.save(sim_data)
+        else:
+            print('The distribution function has not been added yet')
