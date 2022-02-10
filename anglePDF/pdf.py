@@ -19,8 +19,8 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 
-import git
-
+#import git
+import h5py
 
 class AnglePDF(object):
     """Define a rudimentary template class to demonstrate documentation and installation"""
@@ -30,8 +30,15 @@ class AnglePDF(object):
 
         param filename Specifies the file to work with, can be new if data is to be written.
         """
-        # open file
-        self.load(filename)
+        self.func_name = filename.split('-')[0]
+        self.measurement = filename.split('-')[1]
+        self.sample_size = filename.split('-')[2]
+        try:
+            h5py.File(f'pdf_file/{filename}.h5', 'r')
+            self.load(filename)
+        except:
+            print('Currently no file exits with the given values \nWorking on creating probability density function...')
+            self.sample(self.func_name,self.measurement,self.sample_size)
 
 
     def load(self, file):

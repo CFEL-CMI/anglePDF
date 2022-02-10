@@ -19,7 +19,6 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 import numpy as np
-import pkgutil
 import h5py
 
 
@@ -65,7 +64,8 @@ class FHDist(ExpSimPDF):
         # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
         if self.measurement < 1 / 2 or self.measurement > 1:
             raise Exception("The expectation value is not valid")
-        self.f = pkgutil.get_data('anglePDF', '/data/cos3d_cos2d_sigma.h5')
+        file = h5py.File('data/cos3d_cos2d_sigma.h5', 'r')
+        self.frog = np.asarray(file['cos2theta_3d'])
         if self.alignment == 3:
             self.angle_sampler_3d()
         else:
@@ -76,7 +76,7 @@ class FHDist(ExpSimPDF):
         return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
 
     def angle_sampler_3d(self):
-        return self.f
+        return
         pass
 
     def angle_sampler_1d(self, sigma, n):
