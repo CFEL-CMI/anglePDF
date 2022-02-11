@@ -21,6 +21,7 @@
 import numpy as np
 import h5py
 from scipy import interpolate
+import matplotlib.pyplot as plt
 
 
 class ExpSimPDF(object):
@@ -65,22 +66,22 @@ class FHDist(ExpSimPDF):
         # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
         if self.measurement < 1 / 2 or self.measurement > 1:
             raise Exception("The expectation value is not valid")
-        file = h5py.File('data/cos3d_cos2d_sigma.h5', 'r')
-        self.frog = np.asarray(file['cos2theta_3d'])
-        if self.alignment == 3:
-            self.angle_sampler_3d()
-        else:
-            self.angle_sampler_1d(self.measurement, self.sample)
 
     @staticmethod
     def fh_func(cost, sigma):
         return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
 
+    def sampler(self):
+        if self.alignment == 3:
+            self.angle_sampler_3d()
+        else:
+            self.angle_sampler_1d()
+
     def angle_sampler_3d(self):
         return
         pass
 
-    def angle_sampler_1d(self, exp_value, n):
+    def angle_sampler_1d(self):
         """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
 
         param: the experimental value of $ \cos^2 \theta_2D $ and sample size
@@ -88,21 +89,24 @@ class FHDist(ExpSimPDF):
         \theta (inclination) that is the angle with respect to the z-axis shall follow a Guassian distribution
         given by Friedrich and Herschbach
         """
-        phi = np.random.uniform(0, 2 * np.pi, n)
-        chi = np.random.uniform(0, 2 * np.pi, n)
-        theta = np.zeros(n)
+        print('@angle_sampler_1d')
+        phi = np.random.uniform(0, 2 * np.pi, self.sample)
+        chi = np.random.uniform(0, 2 * np.pi, self.sample)
+        theta = np.zeros(self.sample)
         f = h5py.File('data/cos3d_cos2d_sigma.h5', 'r')
         cos2theta_2d = np.asarray(f['cos2theta_2d'])
         sigmas = np.asarray(f['sigma'])
         f.close()
         sigma_interp = interpolate.interp1d(cos2theta_2d, sigmas)
-        sigma = sigma_interp(exp_value)
+        sigma = sigma_interp(self.measurement)
         i = 0
-        while i < n:
+        while i < self.sample:
             proposal = np.random.uniform(-1, 1)
             v = np.random.rand()
             if v <= self.fh_func(proposal, sigma):
                 theta[i] = np.arccos(proposal)
                 i += 1
-
+        print(phi, theta, chi ,'\n', sigma)
+        plt.hist(theta, bins=100)
+        plt.show()
         return np.array([phi, theta, chi])
