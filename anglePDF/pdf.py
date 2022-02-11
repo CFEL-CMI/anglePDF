@@ -42,26 +42,25 @@ class AnglePDF(object):
         self.alignment = filename.split('-')[1]
         self.measurement = float(filename.split('-')[2])
         self.sample_size = int(filename.split('-')[3])
+        self._data = None
+        self.load()
 
-        self.load(filename)
-
-    def load(self, file):
+    def load(self):
         """Load data from the current file"""
         try:
-            h5py.File(f'pdf_file/{file}.h5')
+            h5py.File(f'pdf_file/{self._fname}.h5')
         except FileNotFoundError:
             print('Sampling...')
             self.sample(self.func_name, self.measurement, self.sample_size)
 
-        fn = h5py.File(f'pdf_file/{file}.h5')
-        print('The angular distribution has the following details:\n')
+        fn = h5py.File(f'pdf_file/{self._fname}.h5')
+        print('The angular distribution has the following details:')
         for key in fn.attrs.keys():
             print(f'{key} -> {fn.attrs[key]}')
 
-    def save(self, data=None):
+    def save(self):
         """Save the provided data to file"""
         # flush file
-        self._data = data
         fname = h5py.File(f'pdf_file/{self._fname}.h5', 'w')
         fname.create_dataset(name='phi', data=self._data[0])
         fname.create_dataset(name='theta', data=self._data[1])
@@ -69,7 +68,7 @@ class AnglePDF(object):
         metadata = {'Distribution name': self.func_name,
                     'Alignment': '1D',
                     'Expectation_value': self.measurement,
-                    'Commit': git.Repo("anglePDF")}
+                    }
         fname.attrs.update(metadata)
         fname.close()
 
@@ -78,9 +77,9 @@ class AnglePDF(object):
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-        print('Hear hear')
         if dist_name == 'fh95':
             sim_data = expsim.FHDist(measurement=exp_value, sample=n)
-            self.save(sim_data.sampler())
+            self._data = sim_data.sampler()
+            self.save()
         else:
             print('The distribution function has not been added yet')

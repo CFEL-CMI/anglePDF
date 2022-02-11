@@ -73,14 +73,16 @@ class FHDist(ExpSimPDF):
 
     def sampler(self):
         if self.alignment == 3:
-            self.angle_sampler_3d()
+            return self.angle_sampler_3d
         else:
-            self.angle_sampler_1d()
+            return self.angle_sampler_1d
 
+    @property
     def angle_sampler_3d(self):
         return
         pass
 
+    @property
     def angle_sampler_1d(self):
         """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
 
@@ -89,7 +91,6 @@ class FHDist(ExpSimPDF):
         \theta (inclination) that is the angle with respect to the z-axis shall follow a Guassian distribution
         given by Friedrich and Herschbach
         """
-        print('@angle_sampler_1d')
         phi = np.random.uniform(0, 2 * np.pi, self.sample)
         chi = np.random.uniform(0, 2 * np.pi, self.sample)
         theta = np.zeros(self.sample)
@@ -106,7 +107,4 @@ class FHDist(ExpSimPDF):
             if v <= self.fh_func(proposal, sigma):
                 theta[i] = np.arccos(proposal)
                 i += 1
-        print(phi, theta, chi ,'\n', sigma)
-        plt.hist(theta, bins=100)
-        plt.show()
         return np.array([phi, theta, chi])
