@@ -22,6 +22,7 @@
 import git
 import h5py
 import expsim
+import os
 
 
 class AnglePDF(object):
@@ -53,10 +54,13 @@ class AnglePDF(object):
             print('Sampling...')
             self.sample(self.func_name, self.measurement, self.sample_size)
 
-        fn = h5py.File(f'pdf_file/{self._fname}.h5')
-        print('The angular distribution has the following details:')
-        for key in fn.attrs.keys():
-            print(f'{key} -> {fn.attrs[key]}')
+        if os.path.exists(f'pdf_file/{self._fname}.h5') == False:
+            print(f'Either file or distribution does not exists')
+        else:
+            fn = h5py.File(f'pdf_file/{self._fname}.h5')
+            print('The angular distribution has the following details:')
+            for key in fn.attrs.keys():
+                print(f'{key} -> {fn.attrs[key]}')
 
     def save(self):
         """Save the provided data to file"""

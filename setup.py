@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 copyright = 'Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>'
 name = "CMI Python-project template"
@@ -29,7 +29,7 @@ setup(name=name,
       version             = version,
       long_description    = long_description,
       license             = "GPL",
-      packages            = ['cmitemplate'],
+      packages            = find_packages(),
       scripts             = ['scripts/cmitemplate_calc'],
       command_options={
           'build_sphinx': {
