@@ -20,6 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 import git
+import os
 import h5py
 import expsim
 import os
@@ -65,6 +66,9 @@ class AnglePDF(object):
     def save(self):
         """Save the provided data to file"""
         # flush file
+        path = '/Users/vadassen/CFEL_work/anglePDF'
+        repo = git.Repo(search_parent_directories=True)
+        commit = repo.head.object.hexsha
         fname = h5py.File(f'pdf_file/{self._fname}.h5', 'w')
         fname.create_dataset(name='phi', data=self._data[0])
         fname.create_dataset(name='theta', data=self._data[1])
@@ -72,6 +76,7 @@ class AnglePDF(object):
         metadata = {'Distribution name': self.func_name,
                     'Alignment': '1D',
                     'Expectation_value': self.measurement,
+                    'git commit': commit
                     }
         fname.attrs.update(metadata)
         fname.close()
