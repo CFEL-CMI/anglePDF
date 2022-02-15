@@ -30,6 +30,7 @@ setup(name=name,
       long_description    = long_description,
       license             = "GPL",
       packages            = find_packages(),
+      package_data        = {'anglePDF': ['data/*.h5']},
       scripts             = ['scripts/cmitemplate_calc'],
       command_options={
           'build_sphinx': {

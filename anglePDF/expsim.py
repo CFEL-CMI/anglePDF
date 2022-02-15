@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8; fill-column: 120 -*-
 #
 # Copyright (C) 2021 Jochen Küpper <jochen.kuepper@cfel.de>
@@ -21,7 +21,7 @@
 import numpy as np
 import h5py
 from scipy import interpolate
-import matplotlib.pyplot as plt
+import pkg_resources
 
 
 class ExpSimPDF(object):
@@ -86,7 +86,7 @@ class FHDist(ExpSimPDF):
     def angle_sampler_1d(self):
         """the function generates arrays of 'n' (sample number) theta nad phi angles using rejection sampling
 
-        param: the experimental value of $ \cos^2 \theta_2D $ and sample size
+        param: the experimental value of $  \cos^2 \theta_2D $ and sample size
         In case of 1D alignment the \phi (azimuthal angle) will have a uniform distribution between 0 and 2\pi. The
         \theta (inclination) that is the angle with respect to the z-axis shall follow a Guassian distribution
         given by Friedrich and Herschbach
@@ -94,10 +94,12 @@ class FHDist(ExpSimPDF):
         phi = np.random.uniform(0, 2 * np.pi, self.sample)
         chi = np.random.uniform(0, 2 * np.pi, self.sample)
         theta = np.zeros(self.sample)
-        f = h5py.File('data/cos3d_cos2d_sigma.h5', 'r')
+        f = pkg_resources.resource_stream('anglePDF', 'data/cos3d_cos2d_sigma.h5')
+        f = h5py.File(f, 'r')
         cos2theta_2d = np.asarray(f['cos2theta_2d'])
         sigmas = np.asarray(f['sigma'])
         f.close()
+        print(cos2theta_2d)
         sigma_interp = interpolate.interp1d(cos2theta_2d, sigmas)
         sigma = sigma_interp(self.measurement)
         i = 0

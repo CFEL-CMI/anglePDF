@@ -22,7 +22,7 @@
 import git
 import os
 import h5py
-import expsim
+import anglePDF.expsim as expsim
 import os
 
 
@@ -66,7 +66,6 @@ class AnglePDF(object):
     def save(self):
         """Save the provided data to file"""
         # flush file
-        path = '/Users/vadassen/CFEL_work/anglePDF'
         repo = git.Repo(search_parent_directories=True)
         commit = repo.head.object.hexsha
         fname = h5py.File(f'pdf_file/{self._fname}.h5', 'w')
