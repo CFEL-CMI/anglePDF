@@ -20,7 +20,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 import git
-import os
+import pkg_resources
 import h5py
 import anglePDF.expsim as expsim
 import os
@@ -45,30 +45,33 @@ class AnglePDF(object):
         self.measurement = float(filename.split('-')[2])
         self.sample_size = int(filename.split('-')[3])
         self._data = None
+        location = os.path.dirname(os.path.realpath(__file__))
+        self._path = os.path.join(location, 'pdf_file', f'{self._fname}.h5')
         self.load()
 
     def load(self):
         """Load data from the current file"""
         try:
-            h5py.File(f'pdf_file/{self._fname}.h5')
+            h5py.File(self._path)
         except FileNotFoundError:
             print('Sampling...')
             self.sample(self.func_name, self.measurement, self.sample_size)
 
-        if os.path.exists(f'pdf_file/{self._fname}.h5') == False:
+        if os.path.exists(self._path) == False:
             print(f'Either file or distribution does not exists')
         else:
-            fn = h5py.File(f'pdf_file/{self._fname}.h5')
+            fn = h5py.File(self._path, 'r')
             print('The angular distribution has the following details:')
             for key in fn.attrs.keys():
                 print(f'{key} -> {fn.attrs[key]}')
+            fn.close()
 
     def save(self):
         """Save the provided data to file"""
         # flush file
         repo = git.Repo(search_parent_directories=True)
         commit = repo.head.object.hexsha
-        fname = h5py.File(f'pdf_file/{self._fname}.h5', 'w')
+        fname = h5py.File(self._path, 'w')
         fname.create_dataset(name='phi', data=self._data[0])
         fname.create_dataset(name='theta', data=self._data[1])
         fname.create_dataset(name='chi', data=self._data[2])
