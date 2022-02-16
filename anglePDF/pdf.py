@@ -46,9 +46,9 @@ class AnglePDF(object):
         self._data = None
         if path == None:
             path = os.getcwd()
-            self._path = os.path.join(path, 'pdf_file', f'{self._fname}.h5')
+            self._path = os.path.join(path, f'{self._fname}.h5')
         else:
-            self._path = os.path.join(path, 'pdf_file', f'{self._fname}.h5')
+            self._path = os.path.join(path, f'{self._fname}.h5')
         self.load()
 
     def load(self):
