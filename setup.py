@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 
 copyright = 'Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>'
-name = "CMI Python-project template"
+name = "anglePDF"
 version = "0.2.dev0"
 release = version
 long_description = """CMI Python template
@@ -30,7 +30,7 @@ setup(name=name,
       long_description    = long_description,
       license             = "GPL",
       packages            = find_packages(),
-      package_data        = {'anglePDF': ['data/*.h5']},
+      package_data        = {'anglePDF': ['data/*']},
       scripts             = ['scripts/cmitemplate_calc'],
       command_options={
           'build_sphinx': {

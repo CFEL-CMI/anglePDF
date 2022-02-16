@@ -99,7 +99,6 @@ class FHDist(ExpSimPDF):
         cos2theta_2d = np.asarray(f['cos2theta_2d'])
         sigmas = np.asarray(f['sigma'])
         f.close()
-        print(cos2theta_2d)
         sigma_interp = interpolate.interp1d(cos2theta_2d, sigmas)
         sigma = sigma_interp(self.measurement)
         i = 0

@@ -9,5 +9,6 @@ import sys
 
 if __name__ == "__main__":
 	inputstring = sys.argv[1]
-	anglePDF.pdf.AnglePDF(inputstring)
+
+
 

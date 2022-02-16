@@ -20,7 +20,6 @@
 # see <http://www.gnu.org/licenses/>.
 
 import git
-import pkg_resources
 import h5py
 import anglePDF.expsim as expsim
 import os
@@ -29,7 +28,7 @@ import os
 class AnglePDF(object):
     """Define a rudimentary template class to demonstrate documentation and installation"""
 
-    def __init__(self, filename):
+    def __init__(self, filename=None, path=None):
         """Initialize object
 
         param filename Specifies the file to work with, can be new if data is to be written.
@@ -45,8 +44,11 @@ class AnglePDF(object):
         self.measurement = float(filename.split('-')[2])
         self.sample_size = int(filename.split('-')[3])
         self._data = None
-        location = os.path.dirname(os.path.realpath(__file__))
-        self._path = os.path.join(location, 'pdf_file', f'{self._fname}.h5')
+        if path == None:
+            path = os.getcwd()
+            self._path = os.path.join(path, 'pdf_file', f'{self._fname}.h5')
+        else:
+            self._path = os.path.join(path, 'pdf_file', f'{self._fname}.h5')
         self.load()
 
     def load(self):
