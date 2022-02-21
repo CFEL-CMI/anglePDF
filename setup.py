@@ -31,7 +31,7 @@ setup(name=name,
       license             = "GPL",
       packages            = find_packages(),
       package_data        = {'anglePDF': ['data/*']},
-      scripts             = ['scripts/cmitemplate_calc'],
+      scripts             = ['scripts/anglePDF'],
       command_options={
           'build_sphinx': {
               'project': ('setup.py', name),
