@@ -71,7 +71,11 @@ class AnglePDF(object):
     def save(self):
         """Save the provided data to file"""
         # flush file
-        repo = git.Repo(search_parent_directories=True)
+        try:
+            repo = git.Repo(search_parent_directories=True)
+        except:
+            repo_path = input(print('The file is not runnign in the git folder.Provide path ...'))
+            repo = git.Repo(repo_path)
         commit = repo.head.object.hexsha
         fname = h5py.File(self._path, 'w')
         fname.create_dataset(name='phi', data=self._data[0])
