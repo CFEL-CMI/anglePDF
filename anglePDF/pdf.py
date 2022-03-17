@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License along with this program. If not,
 # see <http://www.gnu.org/licenses/>.
 
-import git
+import anglePDF
 import h5py
 import anglePDF.expsim as expsim
 import os
@@ -57,12 +57,14 @@ class AnglePDF(object):
         path : str
             path of the directory to access the angular distribution file (default current working directory)
 
-        for e.g. fh95-1D-0.85-10000
+        Example
+        -------
+        fh95-1D-0.85-10000
         means angle for Friedrich Herschbach angular distribution which has, 1D alignment, 0.85 experimental value
         and 10000 molecule
         """
         self._fname = fname
-        # Derived from fname
+        # variables derived from fname
         self.func_name = fname.split('-')[0]
         self.alignment = fname.split('-')[1]
         self.measurement = float(fname.split('-')[2])
@@ -95,12 +97,7 @@ class AnglePDF(object):
         """Save the provided data to file
         """
         # flush file
-        try:
-            repo = git.Repo(search_parent_directories=True)
-        except:
-            repo_path = input(print('The file is not running in the git folder.Provide path ...'))
-            repo = git.Repo(repo_path)
-        commit = repo.head.object.hexsha
+        version = anglePDF.__version__
         fname = h5py.File(self._path, 'w')
         fname.create_dataset(name='phi', data=self._data[0])
         fname.create_dataset(name='theta', data=self._data[1])
@@ -108,7 +105,7 @@ class AnglePDF(object):
         metadata = {'Distribution name': self.func_name,
                     'Alignment': '1D',
                     'Expectation_value': self.measurement,
-                    'git commit': commit
+                    'Version': version
                     }
         fname.attrs.update(metadata)
         fname.close()

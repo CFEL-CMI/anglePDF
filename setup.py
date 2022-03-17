@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 copyright = 'Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>'
 name = "anglePDF"
-version = "0.4.dev0"
+version = "0.5.dev0"
 release = version
 long_description = """CMI Python template
 
@@ -19,19 +19,26 @@ Current maintainer: Jochen Küpper <jochen.kuepper@cfel.de>
 
 
 setup(name=name,
-      python_requires     = '>=3.6',
-      author              = "Jochen Küpper and the CFEL-CMI group",
-      author_email        = "jochen.kuepper@cfel.de",
-      maintainer          = "Jochen Küpper and the CFEL-CMI group",
-      maintainer_email    = "jochen.kuepper@cfel.de",
-      url                 = "https://github.com/CFEL-CMI/CMI-Python-project-template",
-      description         = "CMI Python-software template",
-      version             = version,
-      long_description    = long_description,
-      license             = "GPL",
-      packages            = find_packages(),
-      package_data        = {'anglePDF': ['data/*']},
-      scripts             = ['scripts/anglePDF'],
+      python_requires='>=3.6',
+      version=version,
+      author="Jochen Küpper and the CFEL-CMI group",
+      author_email="jochen.kuepper@cfel.de",
+      maintainer="Jochen Küpper and the CFEL-CMI group",
+      maintainer_email="jochen.kuepper@cfel.de",
+      url="https://github.com/CFEL-CMI/CMI-Python-project-template",
+      description="CMI Python-software template",
+      long_description=long_description,
+      license="GPL",
+      packages=find_packages(),
+      package_data={'anglePDF': ['data/*']},
+      install_requires=[
+          'numpy',
+          'matplotlib',
+          'h5py',
+          'scipy'
+      ],
+      setup_requires=['setuptools_scm'],
+      use_scm_version=True,
       command_options={
           'build_sphinx': {
               'project': ('setup.py', name),
