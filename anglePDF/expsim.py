@@ -128,20 +128,6 @@ class FHDist(ExpSimPDF):
         """
         return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
 
-    def sampler(self):
-        """
-        Samples angular distribution according to Friedrich Herschbach with given sample size for either 1D or 3D
-        """
-        if self.alignment == 3:
-            return self.angle_sampler_3d
-        else:
-            return self.angle_sampler_1d
-
-    @property
-    def angle_sampler_3d(self):
-        return
-        pass
-
     @property
     def angle_sampler_1d(self):
         """

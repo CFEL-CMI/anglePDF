@@ -117,7 +117,7 @@ class AnglePDF(object):
         """
         if self.func_name == 'fh95':
             sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size)
-            self._data = sim_data.sampler()
+            self._data = sim_data.angle_sampler_1d
             self.save()
         else:
             raise FileNotFoundError('The distribution function has not been added yet')
