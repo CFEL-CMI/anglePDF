@@ -26,55 +26,79 @@ import os
 
 
 class AnglePDF(object):
-    """Define a rudimentary template class to demonstrate documentation and installation"""
+    """A class for loading, saving and sampling angular distribution.
+    ...
 
-    def __init__(self, filename=None, path=None):
-        """Initialize object
+    Attributes
+    ---------
+    fname :  str
+        the name of the PDF file in following format (func_name - alignemnt - degree of alignment - sample)
+        The parameters are separated by hyphens.
+    path : str
+        path of the directory to access the angular distribution file (default current working directory)
 
-        param filename Specifies the file to work with, can be new if data is to be written.
-        Receive a filename in following format
-        name of angular distribution- exp value - sample size
+    Methods
+    -------
+    load()
+        loads the angular distribution file form the given path location
+    save()
+        saves the sampled angular distribution function into the given path file
+    sample()
+        samples an angular distribution by calling object class ExpSimPDF
+    """
+
+    def __init__(self, fname=None, path=None):
+        """
+        Parameters
+        ----------
+        fname : str
+            the name of the PDF file in following format (func_name - alignment - degree of alignment - sample)
+            The parameters are separated by hyphens.
+        path : str
+            path of the directory to access the angular distribution file (default current working directory)
+
         for e.g. fh95-1D-0.85-10000
-        means angle for Friedrich Herschbach angular distribution which has 0.85 experimental value, 1D alignment
+        means angle for Friedrich Herschbach angular distribution which has, 1D alignment, 0.85 experimental value
         and 10000 molecule
         """
-        self._fname = filename
-        self.func_name = filename.split('-')[0]
-        self.alignment = filename.split('-')[1]
-        self.measurement = float(filename.split('-')[2])
-        self.sample_size = int(filename.split('-')[3])
+        self._fname = fname
+        # Derived from fname
+        self.func_name = fname.split('-')[0]
+        self.alignment = fname.split('-')[1]
+        self.measurement = float(fname.split('-')[2])
+        self.sample_size = int(fname.split('-')[3])
         self._data = None
         if path == None:
             path = os.getcwd()
             self._path = os.path.join(path, f'{self._fname}.h5')
         else:
             self._path = os.path.join(path, f'{self._fname}.h5')
-        self.load()
 
     def load(self):
-        """Load data from the current file"""
+        """Load data from the current file
+
+        Raises
+        ------
+        If the angular distribution file of HDF5 format doesn't exist raise the FileNotFound Error
+        """
         try:
             h5py.File(self._path)
-        except FileNotFoundError:
-            print('Sampling...')
-            self.sample(self.func_name, self.measurement, self.sample_size)
-
-        if os.path.exists(self._path) == False:
-            print(f'Either file or distribution does not exists')
-        else:
             fn = h5py.File(self._path, 'r')
             print('The angular distribution has the following details:')
             for key in fn.attrs.keys():
                 print(f'{key} -> {fn.attrs[key]}')
             fn.close()
+        except FileNotFoundError:
+            print("File not found")
 
     def save(self):
-        """Save the provided data to file"""
+        """Save the provided data to file
+        """
         # flush file
         try:
             repo = git.Repo(search_parent_directories=True)
         except:
-            repo_path = input(print('The file is not runnign in the git folder.Provide path ...'))
+            repo_path = input(print('The file is not running in the git folder.Provide path ...'))
             repo = git.Repo(repo_path)
         commit = repo.head.object.hexsha
         fname = h5py.File(self._path, 'w')
@@ -89,14 +113,14 @@ class AnglePDF(object):
         fname.attrs.update(metadata)
         fname.close()
 
-    def sample(self, dist_name, exp_value, n=1000):
+    def sample(self):
         """Sample the PDF
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-        if dist_name == 'fh95':
-            sim_data = expsim.FHDist(measurement=exp_value, sample=n)
+        if self.func_name == 'fh95':
+            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size)
             self._data = sim_data.sampler()
             self.save()
         else:
-            print('The distribution function has not been added yet')
+            raise FileNotFoundError('The distribution function has not been added yet')
