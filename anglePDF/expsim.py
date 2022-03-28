@@ -27,7 +27,7 @@ import pkg_resources
 class ExpSimPDF(object):
     """Simulate angular PDF from experimental parameters
 
-    Attributes
+    Attributes:
     ----------
     alignment : int
         Dimensionality of the alignment i.e. 1D or 3D (default 1)
@@ -39,7 +39,7 @@ class ExpSimPDF(object):
 
     def __init__(self, alignment: int = 1, measurement: float = 2, data=(0.5,), sample: int = 1000):
         """
-        Parameters
+        Parameters:
         ----------
         alignment : int
             dimensionality of alignment i.e. 1D or 3D (default 1)
@@ -97,15 +97,6 @@ class FHDist(ExpSimPDF):
         Raises
         ------
         Raises exception if experimental value of degree of alignment is <0.5 or >1
-
-        Calculate the theta and phi angle array corresponding to the angular distribution given Friedrich and
-        Herschbach paper DOI :  https://doi.org/10.1103/PhysRevLett.74.4623
-
-        Param: cos2theta_2D value, alignment and number of molecules in sample
-
-        Method : The sigma that is the variance of the Guassian distribution. Sigma can be determined by looking into
-        pre-calculated values using the monte carlo integration. The pre-calculated value ore stored in the data file.
-        The code for the pre-calculation can be looked in the package.
         """
         super().__init__(alignment, measurement, data, sample)
         # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
@@ -122,19 +113,22 @@ class FHDist(ExpSimPDF):
         sigma : float
             the width of the Guassian curve
 
-        Return
-        ------
-        Distribution value at the given value of \sin\theta and sigma value
+        Returns
+        -------
+            Distribution value at the given value of \sin\theta and sigma value
         """
         return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
 
     @property
     def angle_sampler_1d(self):
         """
+        Returns:
+            numpy array of the distribution of theta, phi and chi angles
+
         The function generates arrays of 'n' (sample number) theta, phi and chi  angles for 1D alignment
         using rejection sampling. The value of sigma is manipulated using calculated 2D and 3D expectation values
         saved in data sub-folder in anglePDF. The distribution os given by Friedrich Herschbach
-        r'n\theta = \exp(-\frac{sin^2\theta}{2\sigma^2})'
+        n\theta = \exp(-\frac{sin^2\theta}{2\sigma^2})
         """
         phi = np.random.uniform(0, 2 * np.pi, self.sample)
         chi = np.random.uniform(0, 2 * np.pi, self.sample)

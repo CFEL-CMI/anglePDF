@@ -29,16 +29,16 @@ class AnglePDF(object):
     """A class for loading, saving and sampling angular distribution.
     ...
 
-    Attributes
-    ---------
+    Attributes:
+    -----------
     fname :  str
         the name of the PDF file in following format (func_name - alignemnt - degree of alignment - sample)
         The parameters are separated by hyphens.
     path : str
         path of the directory to access the angular distribution file (default current working directory)
 
-    Methods
-    -------
+    Methods:
+    --------
     load()
         loads the angular distribution file form the given path location
     save()
@@ -52,14 +52,14 @@ class AnglePDF(object):
         Parameters
         ----------
         fname : str
-            the name of the PDF file in following format (func_name - alignment - degree of alignment - sample)
+            The name of the PDF file in following format (func_name - alignment - degree of alignment - sample)
             The parameters are separated by hyphens.
         path : str
             path of the directory to access the angular distribution file (default current working directory)
 
         Example
         -------
-        fh95-1D-0.85-10000
+        input - fh95-1D-0.85-10000
         means angle for Friedrich Herschbach angular distribution which has, 1D alignment, 0.85 experimental value
         and 10000 molecule
         """
@@ -77,9 +77,9 @@ class AnglePDF(object):
             self._path = os.path.join(path, f'{self._fname}.h5')
 
     def load(self):
-        """Load data from the current file
+        """Load data from the given filename
 
-        Raises
+        Raises:
         ------
         If the angular distribution file of HDF5 format doesn't exist raise the FileNotFound Error
         """
@@ -94,7 +94,8 @@ class AnglePDF(object):
             print("File not found")
 
     def save(self):
-        """Save the provided data to file
+        """
+        Save the provided data in hdf5 format in given path or cwd otherwise
         """
         # flush file
         version = anglePDF.__version__
@@ -112,6 +113,8 @@ class AnglePDF(object):
 
     def sample(self):
         """Sample the PDF
+
+        Provides an angular distribution randomdly sampled form PDF.
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """

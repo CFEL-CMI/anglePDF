@@ -37,8 +37,6 @@ setup(name=name,
           'h5py',
           'scipy'
       ],
-      setup_requires=['setuptools_scm'],
-      use_scm_version=True,
       command_options={
           'build_sphinx': {
               'project': ('setup.py', name),
