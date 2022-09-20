@@ -83,7 +83,7 @@ class FHDist(ExpSimPDF):
     fh_func()
         static function returning Friedrich and Herschbach angular distribution function
     """
-    def __init__(self, alignment=1, measurement=0.5, data=(0.5,), sample=1000):
+    def __init__(self, alignment=1, measurement=0.5, data=(0.5,), sample=1000, weighted = True ):
         """
         Parameters
         ----------
@@ -100,6 +100,7 @@ class FHDist(ExpSimPDF):
         """
         super().__init__(alignment, measurement, data, sample)
         # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
+        self._weighted = weighted
         if self.measurement < 1 / 2 or self.measurement > 1:
             raise Exception("The expectation value is not valid")
 
@@ -148,4 +149,8 @@ class FHDist(ExpSimPDF):
                 theta[i] = np.arccos(proposal)
                 i += 1
 
+        if self._weighted == True:
+            theta = np.histogram(theta, bins = 1000)
+            phi = np.histogram(phi, bins = 1000)
+            chi = np.histogram(chi, bins =1000)
         return np.array([phi, theta, chi])

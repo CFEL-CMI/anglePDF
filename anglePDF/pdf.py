@@ -47,7 +47,7 @@ class AnglePDF(object):
         samples an angular distribution by calling object class ExpSimPDF
     """
 
-    def __init__(self, fname=None, path=None):
+    def __init__(self, fname=None, path=None, weighted = True):
         """
         Parameters
         ----------
@@ -70,6 +70,7 @@ class AnglePDF(object):
         self.measurement = float(fname.split('-')[2])
         self.sample_size = int(fname.split('-')[3])
         self._data = None
+        self._weighted = weighted
         if path == None:
             path = os.getcwd()
             self._path = os.path.join(path, f'{self._fname}.h5')
@@ -114,12 +115,12 @@ class AnglePDF(object):
     def sample(self):
         """Sample the PDF
 
-        Provides an angular distribution randomdly sampled form PDF.
+        Provides an angular distribution randomly sampled form PDF.
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
         if self.func_name == 'fh95':
-            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size)
+            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size, weighted = self._weighted)
             self._data = sim_data.angle_sampler_1d
             self.save()
         else:
