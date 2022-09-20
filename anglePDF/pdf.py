@@ -101,9 +101,9 @@ class AnglePDF(object):
         # flush file
         version = anglePDF.__version__
         fname = h5py.File(self._path, 'w')
-        fname.create_dataset(name='phi', data=self._data[0])
-        fname.create_dataset(name='theta', data=self._data[1])
-        fname.create_dataset(name='chi', data=self._data[2])
+        fname.create_dataset(name='phi', data=self._data[0], shape=self._data[0].shape)
+        fname.create_dataset(name='theta', data=self._data[1], shape= self._data[1].shape)
+        fname.create_dataset(name='chi', data=self._data[2], shape = self._data[2].shape)
         metadata = {'Distribution name': self.func_name,
                     'Alignment': '1D',
                     'Expectation_value': self.measurement,
