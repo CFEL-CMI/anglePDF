@@ -150,10 +150,11 @@ class FHDist(ExpSimPDF):
                 i += 1
 
         if self._weighted == True:
-            theta = np.histogram(theta, bins = 1000)
-            theta = np.array([tuple(theta[elem]) for elem in range(len(theta))], dtype = object)
-            phi = np.histogram(phi, bins = 1000)
-            phi = np.array([tuple(phi[elem]) for elem in range(len(phi))], dtype = object)
-            chi = np.histogram(chi, bins =1000)
-            chi = np.array([tuple(chi[elem]) for elem in range(len(chi))], dtype = object)
+            theta = np.array(np.histogram(theta, bins = 101), dtype = object)
+            theta[1] = np.array([np.mean((theta[1][i+1],theta[1][i])) for i in range(theta[1].size - 1)])
+            phi = np.array(np.histogram(phi, bins = 101), dtype = object)
+            phi[1] = np.array([np.mean((phi[1][i + 1],phi[1][i])) for i in range(phi[1].size - 1)])
+            chi = np.array(np.histogram(chi, bins = 101), dtype = object)
+            chi[1] = np.array([np.mean((chi[1][i + 1],chi[1][i])) for i in range(chi[1].size - 1)])
+
         return (phi, theta, chi)

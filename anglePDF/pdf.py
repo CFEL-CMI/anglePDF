@@ -100,10 +100,17 @@ class AnglePDF(object):
         """
         # flush file
         version = anglePDF.__version__
+        print(self._path)
         fname = h5py.File(self._path, 'w')
-        fname.create_dataset(name='phi', data=self._data[0], shape=self._data[0].shape)
-        fname.create_dataset(name='theta', data=self._data[1], shape= self._data[1].shape)
-        fname.create_dataset(name='chi', data=self._data[2], shape = self._data[2].shape)
+        angles = ['phi', 'theta', 'chi']
+        dset = ['weights', 'angle_bins']
+        for index, angle in enumerate(angles):
+            grp =  fname.create_group(angle)
+            if self._weighted:
+                [grp.create_dataset(name = name, data = self._data[index][dset_index]) for dset_index, name in enumerate(dset)]
+            else:
+                grp.create_dataset(name= 'angles', data=self._data[index])
+
         metadata = {'Distribution name': self.func_name,
                     'Alignment': '1D',
                     'Expectation_value': self.measurement,

@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 copyright = 'Copyright (C) 2020 Jochen Küpper <jochen.kuepper@cfel.de>'
 name = "anglePDF"
-version = "0.5.1.1"
+version = "0.5.1.5"
 release = version
 long_description = """CMI Python template
 
