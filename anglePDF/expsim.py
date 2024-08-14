@@ -22,6 +22,7 @@ import numpy as np
 import h5py
 from scipy import interpolate
 import pkg_resources
+import random
 
 
 class ExpSimPDF(object):
@@ -83,7 +84,7 @@ class FHDist(ExpSimPDF):
     fh_func()
         static function returning Friedrich and Herschbach angular distribution function
     """
-    def __init__(self, alignment=1, measurement=0.5, data=(0.5,), sample=1000, weighted = True ):
+    def __init__(self, alignment=1, measurement=0.5, data=(0.5,), sample=1000, **kwargs):
         """
         Parameters
         ----------
@@ -100,7 +101,11 @@ class FHDist(ExpSimPDF):
         """
         super().__init__(alignment, measurement, data, sample)
         # the expectation value of $\cos^2\theta_2D$ should be between 0.5 and 1
-        self._weighted = weighted
+        if kwargs:
+            if 'weighted' in kwargs:
+                self._weighted = kwargs['weighted']
+            if 'bins' in kwargs:
+                self._bins = kwargs['bins']
         if self.measurement < 1 / 2 or self.measurement > 1:
             raise Exception("The expectation value is not valid")
 
@@ -131,9 +136,9 @@ class FHDist(ExpSimPDF):
         saved in data sub-folder in anglePDF. The distribution os given by Friedrich Herschbach
         n\theta = \exp(-\frac{sin^2\theta}{2\sigma^2})
         """
-        phi = np.random.uniform(0, 2 * np.pi, self.sample)
-        chi = np.random.uniform(0, 2 * np.pi, self.sample)
-        theta = np.zeros(self.sample)
+        phi = np.random.uniform(0, 2 * np.pi, self.sample, )
+        chi = np.random.uniform(0, 2 * np.pi, self.sample, )
+        theta = np.zeros(self.sample, )
         fn = pkg_resources.resource_stream('anglePDF', 'data/cos3d_cos2d_sigma.h5')
         f = h5py.File(fn, 'r')
         cos2theta_2d = np.asarray(f['cos2theta_2d'])
@@ -143,18 +148,20 @@ class FHDist(ExpSimPDF):
         sigma = sigma_interp(self.measurement)
         i = 0
         while i < self.sample:
-            proposal = np.random.uniform(-1, 1)
+            proposal = np.random.uniform(0, 1)
+            proposal = np.random.uniform(-np.pi/2, np.pi/2)
             v = np.random.rand()
-            if v <= self.fh_func(proposal, sigma):
-                theta[i] = np.arccos(proposal)
+            if v <= self.fh_func(np.cos(proposal), sigma):
+                theta[i] = proposal
+                #theta[i] = np.arccos(proposal)
                 i += 1
 
         if self._weighted == True:
-            theta = np.array(np.histogram(theta, bins = 1001), dtype = object)
+            theta = np.array(np.histogram(theta, bins = self._bins+1), dtype = object)
             theta[1] = np.array([np.mean((theta[1][i+1],theta[1][i])) for i in range(theta[1].size - 1)])
-            phi = np.array(np.histogram(phi, bins = 1001), dtype = object)
+            phi = np.array(np.histogram(phi, bins = self._bins+1), dtype = object)
             phi[1] = np.array([np.mean((phi[1][i + 1],phi[1][i])) for i in range(phi[1].size - 1)])
-            chi = np.array(np.histogram(chi, bins = 1001), dtype = object)
+            chi = np.array(np.histogram(chi, bins =self._bins+1), dtype = object)
             chi[1] = np.array([np.mean((chi[1][i + 1],chi[1][i])) for i in range(chi[1].size - 1)])
 
         return (phi, theta, chi)

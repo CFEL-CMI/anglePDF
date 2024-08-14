@@ -23,6 +23,7 @@ import anglePDF
 import h5py
 import anglePDF.expsim as expsim
 import os
+import numpy as np
 
 
 class AnglePDF(object):
@@ -47,7 +48,7 @@ class AnglePDF(object):
         samples an angular distribution by calling object class ExpSimPDF
     """
 
-    def __init__(self, fname=None, path=None, weighted = True):
+    def __init__(self, fname=None, path=None, weighted = True, bins = 100):
         """
         Parameters
         ----------
@@ -68,9 +69,10 @@ class AnglePDF(object):
         self.func_name = fname.split('-')[0]
         self.alignment = fname.split('-')[1]
         self.measurement = float(fname.split('-')[2])
-        self.sample_size = int(fname.split('-')[3])
+        self.sample_size = np.int64(fname.split('-')[3])
         self._data = None
         self._weighted = weighted
+        self._bins = bins
         if path == None:
             path = os.getcwd()
             self._path = os.path.join(path, f'{self._fname}.h5')
@@ -127,7 +129,8 @@ class AnglePDF(object):
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
         if self.func_name == 'fh95':
-            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size, weighted = self._weighted)
+            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size, weighted = self._weighted,
+                                     bins=self._bins)
             self._data = sim_data.angle_sampler_1d
             self.save()
         else:
