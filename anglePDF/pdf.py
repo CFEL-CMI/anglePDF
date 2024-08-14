@@ -23,7 +23,7 @@ import anglePDF
 import matplotlib.pyplot as plt
 import h5py
 import os
-import anglePDF.expsim as expsim
+from anglePDF.expsim import ExpSimPDF, AnatSimPDF
 import numpy as np
 
 import anglePDF.expsim
@@ -70,12 +70,12 @@ class AnglePDF():
         """
         assert dist_func == anglePDF.expsim.ExpSimPDF or anglePDF.expsim.ExpSimPDF, "The angular distribution function has not been implemented yet"
         self.angular_dist_func = dist_func
-        self._fname = f"FH95_{self.angular_dist_func.sample}_chi_{self.angular_dist_func.cos_chi:.3f}_
-        \\ theta_{self.angular_dist_func.cos_theta:.3f}_phi_{self.angular_dist_func.cos_phi:.3f}.txt".replace(".", "_")
+        self._fname = f"FH95_{self.angular_dist_func._sample}_chi_{self.angular_dist_func.cos_chi:.3f}_theta_{self.angular_dist_func.cos_theta:.3f}_phi_{self.angular_dist_func.cos_phi:.3f}.txt".replace(".", "_")
 
         # variables derived from fname
         path = os.getcwd()
         self._path = os.path.join(path, f'{self._fname}.h5')
+        self._data = None
         
 
     def load(self):
@@ -95,28 +95,31 @@ class AnglePDF():
             fn.close()
 
         except FileNotFoundError:
-            print("File not found")
+            print("File not found or not sampled yet in the current working directory")
 
     def save(self):
         """
         Save the provided data in hdf5 format in given path or cwd otherwise
         """
         # flush file
-        version = anglePDF.__version__
-        print(self._path)
-        fname = h5py.File(self._path, 'w')
-        dataset = ['chi', 'theta', 'phi', 'weights']
-        for index, angle in enumerate(dataset):
-            fname.create_dataset(name=index, data=self._data[index])
+        if self._data == None:
+            self.load()
+        else:
+            version = anglePDF.__version__
+            print(self._path)
+            fname = h5py.File(self._path, 'w')
+            dataset = ['chi', 'theta', 'phi', 'weights']
+            for index, dset_name in enumerate(dataset):
+                fname.create_dataset(name=dset_name, data=self._data[index])
 
-        metadata = {'Distribution name': self.angular_dist_func.__class__.__name__,
-                    'Alignment': self.angular_dist_func.alignment,
-                    'Sample' : self.angular_dist_func.sample
-                    'Expectation_value': [self.angular_dist_func.sigma_chi, self.angular_dist_func.sigma_theta, self.angular_dist_func.sigma_phi],
-                    'Version': version,
-                    }
-        fname.attrs.update(metadata)
-        fname.close()
+            metadata = {'Distribution name': str(self.angular_dist_func.__class__.__name__),
+                        'Alignment':str(self.angular_dist_func.alignment+"D"),
+                        'Sample' : str(self.angular_dist_func._sample),
+                        'Expectation_value': str([self.angular_dist_func.sigma_chi, self.angular_dist_func.sigma_theta, self.angular_dist_func.sigma_phi]),
+                        'Version': version,
+                        }
+            fname.attrs.update(metadata)
+            fname.close()
 
     def sample(self):
         """Sample the PDF
@@ -125,7 +128,9 @@ class AnglePDF():
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-        self._data = self.angular_dist_func.sampler()
+        self._data = self.angular_dist_func.sampler
+        self.plot()
+        return self._data
 
     
     def plot(self):

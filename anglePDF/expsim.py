@@ -23,7 +23,6 @@ import h5py
 from tqdm import tqdm
 from scipy import interpolate
 import pkg_resources
-import random
 
 class ExpSimPDF(object):
     """Simulate angular PDF from experimental parameters
@@ -62,15 +61,22 @@ class ExpSimPDF(object):
         """
         self.alignment = alignment
         assert self.alignment == 1 or self.alignment == 3, "The dimension of the alignment is not 1D or 3D"
+
+        self.cos_chi, self.cos_theta, self.cos_phi = expection_values[0], expection_values[1], expection_values[2]
+        
+        self.sigma_chi = 1 - self.cos_chi
+        self.sigma_theta =  1 - self.cos_theta 
+        self.sigma_phi = 1 - self.cos_phi
+
+        self._sample = sample
+        self.measurement = measurement
+
         if self.alignment == 1:
             self.sampler = self.angle_sampler_1D
         elif self.alignment == 3:
             self.sampler = self.angle_sampler_3D
-        self.cos_chi, self.cos_theta, self.cos_phi = expection_values[0], expection_values[1], expection_values[2]
-        self.sigma_chi, self.sigma_theta, self._sigma_phi = 1 - self.cos_chi, 1 - self.cos_theta, 1 - self.cos_phi
         
-        self.sample = sample
-        self.measurement = measurement
+        
 
     
     @staticmethod
@@ -89,6 +95,7 @@ class ExpSimPDF(object):
         """
         return np.exp(-0.5 * (1 - cost ** 2) / sigma ** 2)
 
+    @staticmethod
     def fh_func_sin(sint, sigma):
         """
         Same as the fh_func the angle are \\pi/2 shifted
@@ -118,11 +125,11 @@ class ExpSimPDF(object):
         The value of sigma will be manipulated using calculated 2D and 3D expectation values
         saved in data sub-folder in anglePDF. 
         """
-        phi = np.random.uniform(0, 2 * np.pi, self.sample, )
-        chi = np.random.uniform(0, 2 * np.pi, self.sample, )
-        theta = np.zeros(self.sample,)
+        phi = np.random.uniform(0, 2 * np.pi, self._sample, )
+        chi = np.random.uniform(0, 2 * np.pi, self._sample, )
+        theta = np.zeros(self._sample,)
         i = 0
-        while i < self.sample:
+        while i < self._sample:
             proposal = np.random.uniform(0, 1)
             proposal = np.random.uniform(-np.pi/2, np.pi/2)
             v = np.random.rand()
@@ -156,46 +163,40 @@ class ExpSimPDF(object):
         where the sigmas corresponds to the width of the guassian as explained in the references"""
         phi, chi, theta = [], [], []
 
-        pbar = tqdm(total=self.sample, desc="Theta Processing")
         #THETA
         i = 0
-        while i < self.sample:
+        while i < self._sample:
             proposal = np.random.uniform(0, np.pi)
             v = np.random.rand()
             if v <= self.fh_func(np.cos(proposal), self.sigma_theta):
                 theta.append(proposal)
                 i += 1
-                pbar.update(1)
 
-        pbar = tqdm(total=self.sample, desc="Phi Processing")
         # PHI
         i = 0
-        while i < self.sample:
+        while i < self._sample:
             proposal = np.random.uniform(0, np.pi)
             v = np.random.rand()
             if v <= self.fh_func(np.cos(proposal), self.sigma_phi):
                 phi.append(proposal)
                 i += 1
-                pbar.update(1)
-            
-            
-        pbar = tqdm(total=self.sample, desc="Chi Processing")
+
         # CHI
         i = 0
-        while i < self.sample:
+        while i < self._sample:
             proposal = np.random.uniform(0, np.pi)
             v = np.random.rand()
             if v <= self.fh_func_sin(np.cos(proposal), self.sigma_chi):
                 chi.append(proposal)
                 #theta[i] = np.arccos(proposal)
                 i += 1
-                pbar.update(1)
+
 
         p_phi = self.fh_func(np.cos(phi), self.sigma_phi)
         p_theta = self.fh_func(np.cos(theta), self.sigma_theta)
         p_chi = self.fh_func_sin(np.cos(chi), self.sigma_chi)
 
-        weights = p_chi * p_theta * p_phi
+        weights = p_phi * p_theta * p_chi
 
         #Normalising the weights
         weights = weights/weights.max()  
