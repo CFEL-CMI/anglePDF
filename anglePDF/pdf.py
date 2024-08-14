@@ -20,13 +20,16 @@
 # see <http://www.gnu.org/licenses/>.
 
 import anglePDF
+import matplotlib.pyplot as plt
 import h5py
-import anglePDF.expsim as expsim
 import os
+import anglePDF.expsim as expsim
 import numpy as np
 
+import anglePDF.expsim
 
-class AnglePDF(object):
+
+class AnglePDF():
     """A class for loading, saving and sampling angular distribution.
     ...
 
@@ -48,36 +51,32 @@ class AnglePDF(object):
         samples an angular distribution by calling object class ExpSimPDF
     """
 
-    def __init__(self, fname=None, path=None, weighted = True, bins = 100):
+    def __init__(self, dist_func):
         """
         Parameters
         ----------
-        fname : str
-            The name of the PDF file in following format (func_name - alignment - degree of alignment - sample)
-            The parameters are separated by hyphens.
-        path : str
-            path of the directory to access the angular distribution file (default current working directory)
+        dimension : int 
+            dimension of the alignment distribution. It can only have value 1 corresponding to 1D  and 3 corresponding to 33
+        expection_values : list
+            List of the expection value of euler angles \\chi, \\theta and \\phi in the same order. Default value is the values for isotropic 
+            ensemble
+        sample : int
+            Number of angle for each euler angle i.e \\chi, \\theta, \\phi
+        
+        The distribution of the angles is based on the 
 
-        Example
-        -------
-        input - fh95-1D-0.85-10000
-        means angle for Friedrich Herschbach angular distribution which has, 1D alignment, 0.85 experimental value
-        and 10000 molecule
+        Stapelfeldt, H. & Seideman, T. Colloquium: Aligning molecules with strong laser pulses. Rev Mod Phys 75, 543–557 (2003)
+  
         """
-        self._fname = fname
+        assert dist_func == anglePDF.expsim.ExpSimPDF or anglePDF.expsim.ExpSimPDF, "The angular distribution function has not been implemented yet"
+        self.angular_dist_func = dist_func
+        self._fname = f"FH95_{self.angular_dist_func.sample}_chi_{self.angular_dist_func.cos_chi:.3f}_
+        \\ theta_{self.angular_dist_func.cos_theta:.3f}_phi_{self.angular_dist_func.cos_phi:.3f}.txt".replace(".", "_")
+
         # variables derived from fname
-        self.func_name = fname.split('-')[0]
-        self.alignment = fname.split('-')[1]
-        self.measurement = float(fname.split('-')[2])
-        self.sample_size = np.int64(fname.split('-')[3])
-        self._data = None
-        self._weighted = weighted
-        self._bins = bins
-        if path == None:
-            path = os.getcwd()
-            self._path = os.path.join(path, f'{self._fname}.h5')
-        else:
-            self._path = os.path.join(path, f'{self._fname}.h5')
+        path = os.getcwd()
+        self._path = os.path.join(path, f'{self._fname}.h5')
+        
 
     def load(self):
         """Load data from the given filename
@@ -89,10 +88,12 @@ class AnglePDF(object):
         try:
             h5py.File(self._path)
             fn = h5py.File(self._path, 'r')
+            self._data = (fn['chi'], fn['theta'], fn['phi'], fn['weights'])
             print('The angular distribution has the following details:')
             for key in fn.attrs.keys():
                 print(f'{key} -> {fn.attrs[key]}')
             fn.close()
+
         except FileNotFoundError:
             print("File not found")
 
@@ -104,19 +105,15 @@ class AnglePDF(object):
         version = anglePDF.__version__
         print(self._path)
         fname = h5py.File(self._path, 'w')
-        angles = ['phi', 'theta', 'chi']
-        dset = ['weights', 'angle_bins']
-        for index, angle in enumerate(angles):
-            grp =  fname.create_group(angle)
-            if self._weighted:
-                [grp.create_dataset(name = name, data = self._data[index][dset_index]) for dset_index, name in enumerate(dset)]
-            else:
-                grp.create_dataset(name= 'angles', data=self._data[index])
+        dataset = ['chi', 'theta', 'phi', 'weights']
+        for index, angle in enumerate(dataset):
+            fname.create_dataset(name=index, data=self._data[index])
 
-        metadata = {'Distribution name': self.func_name,
-                    'Alignment': '1D',
-                    'Expectation_value': self.measurement,
-                    'Version': version
+        metadata = {'Distribution name': self.angular_dist_func.__class__.__name__,
+                    'Alignment': self.angular_dist_func.alignment,
+                    'Sample' : self.angular_dist_func.sample
+                    'Expectation_value': [self.angular_dist_func.sigma_chi, self.angular_dist_func.sigma_theta, self.angular_dist_func.sigma_phi],
+                    'Version': version,
                     }
         fname.attrs.update(metadata)
         fname.close()
@@ -128,10 +125,18 @@ class AnglePDF(object):
 
         param n Provide `n` many randomly sampled directions from the PDF (probability weighted, obviously;-)
         """
-        if self.func_name == 'fh95':
-            sim_data = expsim.FHDist(measurement=self.measurement, sample=self.sample_size, weighted = self._weighted,
-                                     bins=self._bins)
-            self._data = sim_data.angle_sampler_1d
-            self.save()
-        else:
-            raise FileNotFoundError('The distribution function has not been added yet')
+        self._data = self.angular_dist_func.sampler()
+
+    
+    def plot(self):
+        # Create a 3D scatter plot
+        fig = plt.figure(figsize=(10, 8))
+        ax = fig.add_subplot(111, projection='3d')
+        sc = ax.scatter(self._data[2], self._data[1], self._data[0], c=self._data[3], cmap='viridis')
+        plt.colorbar(sc)
+        # Set labels and title
+        ax.set_xlabel('phi')
+        ax.set_ylabel('theta')
+        ax.set_zlabel('chi')
+        ax.set_title('3D Grid of Angles')
+        plt.show()  
